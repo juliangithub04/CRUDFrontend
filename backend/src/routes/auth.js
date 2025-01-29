@@ -1,65 +1,60 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const pool = require('../db');
-
+const jwt = require('jsonwebtoken'); // Para generar el token JWT
+const User = require('../models/User');
 const router = express.Router();
 
-// Registro de usuarios
+// Ruta de registro
 router.post('/register', async (req, res) => {
   const { full_name, email, password } = req.body;
 
   try {
-    // Verificar si el usuario ya existe
-    const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
-      return res.status(400).json({ message: 'El usuario ya está registrado.' });
-    }
-
     // Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Guardar el usuario en la base de datos
-    const newUser = await pool.query(
-      'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING *',
-      [full_name, email, hashedPassword]
-    );
+    // Crear el nuevo usuario
+    const user = new User({
+      full_name,
+      email,
+      password: hashedPassword,
+    });
 
-    res.status(201).json({ message: 'Usuario registrado exitosamente.', user: newUser.rows[0] });
+    await user.save();
+    res.status(201).json({ message: 'Usuario registrado exitosamente.' });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Error en el servidor.' });
+    console.error(error);
+    res.status(500).json({ message: 'Error al registrar el usuario.' });
   }
 });
 
-// Login de usuarios
+// Ruta de login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Verificar si el usuario existe
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (user.rows.length === 0) {
+    // Buscar al usuario por email
+    const user = await User.findOne({ email });
+
+    if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
 
     // Verificar la contraseña
-    const validPassword = await bcrypt.compare(password, user.rows[0].password);
-    if (!validPassword) {
-      return res.status(401).json({ message: 'Contraseña incorrecta.' });
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Credenciales incorrectas.' });
     }
 
-    // Generar el token JWT
-    const token = jwt.sign(
-      { id: user.rows[0].id, email: user.rows[0].email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    // Generar un token JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1h', // Token válido por 1 hora
+    });
 
-    res.status(200).json({ message: 'Login exitoso.', token });
+    res.json({ token, message: 'Inicio de sesión exitoso.' });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Error en el servidor.' });
+    console.error(error);
+    res.status(500).json({ message: 'Error al iniciar sesión.' });
   }
 });
 

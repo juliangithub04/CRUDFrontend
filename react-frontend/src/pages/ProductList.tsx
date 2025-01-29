@@ -12,12 +12,19 @@ const ProductList: React.FC = () => {
     setProducts(data);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (_id: string) => {
     if (confirm('¿Estás seguro de eliminar este producto?')) {
-      await deleteProduct(id);
-      fetchProducts(); // Refrescar la lista
+      try {
+        await deleteProduct(_id);
+        alert('Producto eliminado exitosamente.');
+        fetchProducts(); // Refrescar la lista
+      } catch (error) {
+        console.error('Error al eliminar el producto:', error);
+        alert('No se pudo eliminar el producto. Inténtalo nuevamente.');
+      }
     }
   };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Eliminar el token del almacenamiento local
@@ -34,12 +41,12 @@ const ProductList: React.FC = () => {
     <div className="product-list-container">
       <div className="header">
         <h1 className="product-list-title">Lista de Productos</h1>
-      </div>
-      <div className="header-buttons">
+        <div className="header-buttons">
           <button className="logout-button" onClick={handleLogout}>
             Cerrar Sesión
           </button>
         </div>
+      </div>
       <button className="add-product-button" onClick={() => navigate('/add')}>
             Agregar Producto
           </button>
@@ -56,7 +63,7 @@ const ProductList: React.FC = () => {
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr key={product.id}>
+            <tr key={product._id}>
               <td>{product.name}</td>
               <td>{product.description}</td>
               <td>${product.price}</td>
@@ -66,7 +73,7 @@ const ProductList: React.FC = () => {
                 <div>
                   <button
                     className="edit-button"
-                    onClick={() => navigate(`/edit/${product.id}`)}
+                    onClick={() => navigate(`/edit/${product._id}`)}
                   >
                     Editar
                   </button>
@@ -74,7 +81,7 @@ const ProductList: React.FC = () => {
                 <div>
                   <button
                     className="delete-button"
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => handleDelete(product._id)}
                   >
                     Eliminar
                   </button>

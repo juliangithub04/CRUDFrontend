@@ -10,21 +10,27 @@ export const getProducts = async (): Promise<Product[]> => {
 };
 
 // Crear un nuevo producto
-export const createProduct = async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> => {
+export const createProduct = async (
+  product: Omit<Product, '_id' | 'created_at' | 'updated_at'>
+): Promise<Product> => {
   const response = await axios.post<Product>(`${API_URL}/products`, product);
   return response.data;
 };
 
+
 // Actualizar un producto
-export const updateProduct = async (
-  id: number,
-  product: Omit<Product, 'id' | 'created_at' | 'updated_at'>
-): Promise<Product> => {
+
+export const updateProduct = async (id: string, product: Omit<Product, '_id' | 'created_at' | 'updated_at'>) => {
   const response = await axios.put<Product>(`${API_URL}/products/${id}`, product);
   return response.data;
 };
 
 // Eliminar un producto
-export const deleteProduct = async (id: number): Promise<void> => {
-  await axios.delete(`${API_URL}/products/${id}`);
+export const deleteProduct = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_URL}/products/${id}`);
+  } catch (error) {
+    console.error('Error al eliminar el producto:', error);
+    throw error; // Propaga el error
+  }
 };

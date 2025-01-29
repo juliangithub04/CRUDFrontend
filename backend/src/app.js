@@ -4,6 +4,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
+const connectDB = require('./db');
+
+
+connectDB();
 
 const app = express();
 

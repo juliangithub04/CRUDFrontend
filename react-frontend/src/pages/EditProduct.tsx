@@ -5,9 +5,11 @@ import { Product } from '../types/Product';
 import '../styles/edit.css'; // Importación del CSS
 
 const EditProduct: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>(); // Obtener el ID desde la URL
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'>>({
+
+  // Estado para los datos del formulario
+  const [formData, setFormData] = useState<Omit<Product, '_id' | 'created_at' | 'updated_at'>>({
     name: '',
     description: '',
     price: 0,
@@ -15,10 +17,11 @@ const EditProduct: React.FC = () => {
     stock: 0,
   });
 
+  // Función para cargar el producto
   const fetchProduct = async () => {
     try {
       const products = await getProducts();
-      const product = products.find((p) => p.id === Number(id));
+      const product = products.find((p) => p._id === id); // Buscar el producto por _id
       if (product) {
         setFormData({
           name: product.name,
@@ -29,7 +32,7 @@ const EditProduct: React.FC = () => {
         });
       } else {
         alert('Producto no encontrado.');
-        navigate('/');
+        navigate('/products'); // Redirigir si no se encuentra el producto
       }
     } catch (error) {
       console.error(error);
@@ -37,20 +40,22 @@ const EditProduct: React.FC = () => {
     }
   };
 
+  // Manejar cambios en el formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'price' || name === 'stock' ? Number(value) : value,
+      [name]: name === 'price' || name === 'stock' ? Number(value) : value, // Convertir valores numéricos si es necesario
     });
   };
 
+  // Manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await updateProduct(Number(id), formData);
+      await updateProduct(id as string, formData); // Usar el ID como string
       alert('Producto actualizado exitosamente');
-      navigate('/products');
+      navigate('/products'); // Redirigir a la lista de productos
     } catch (error) {
       console.error(error);
       alert('Hubo un error al actualizar el producto.');
@@ -58,7 +63,7 @@ const EditProduct: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProduct();
+    fetchProduct(); // Cargar el producto al montar el componente
   }, [id]);
 
   return (

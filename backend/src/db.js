@@ -1,20 +1,16 @@
-require('dotenv').config();
-const { Pool } = require('pg');
+const mongoose = require('mongoose');
 
-console.log('Conectando a la base de datos con los siguientes parámetros:')
-console.log(`Usuario: ${process.env.DB_USER}`)
-console.log(`Base de datos: ${process.env.DB_NAME}`)
-console.log(`Host: ${process.env.DB_HOST}`)
-console.log(`Contraseña: ${process.env.DB_PASSWORD}`)
-console.log(`Puerto: ${process.env.DB_PORT}`)
+const connectDB = async () => {
+  try {
+    await mongoose.connect('mongodb://localhost:27017/gestion_productos', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Conexión a MongoDB exitosa.');
+  } catch (error) {
+    console.error('Error al conectar a MongoDB:', error);
+    process.exit(1); // Detener el servidor si no se puede conectar
+  }
+};
 
-// Configuración de la base de datos
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
-
-module.exports = pool;
+module.exports = connectDB;

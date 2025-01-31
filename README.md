@@ -11,21 +11,21 @@ Este es un proyecto Full Stack de gestión de productos, desarrollado con **Reac
 
 ---
 
-Instalacion
+##Instalacion
 
 Backend
-## cd backend
-1.npm install mongoose
-2.npm install express bcryptjs jsonwebtoken dotenv body-parser cors
-3. crear el .env con las credenciales necesarias de la base de datos
-4. node src/app.js
+**cd backend
+**1.npm install mongoose
+**2.npm install express bcryptjs jsonwebtoken dotenv body-parser cors
+**3. crear el .env con las credenciales necesarias de la base de datos
+**4. node src/app.js
 
 
-Frontend:
-## cd react-frontend
-1. npm install axios react-router-dom
-2.npm install --save-dev @types/react-router-dom
-3. npm run dev
+**Frontend:
+**cd react-frontend
+**1. npm install axios react-router-dom
+**2.npm install --save-dev @types/react-router-dom
+**3. npm run dev
 
 
 ## 🛠️ **Tecnologías Utilizadas**
